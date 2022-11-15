@@ -1,0 +1,110 @@
+---
+title: "Session 2: Recap Regression Analysis"
+author: "Laura Eberlein, Santiago Gómez-Echeverry & Dimitris Pavlopoulos"
+date: "2022-11-15"
+output: html_document
+---
+
+# Setting up
+
+The idea of this practical is to go through the basics of multiple regression analysis, which you should know from previous courses.
+
+Before diving into the core of the lecture, remember that you should always start your R session by arranging the workspace
+
+```{r setup, warning = FALSE, message = FALSE}
+# Clean the environment 
+rm(list = ls())
+
+# Setting the working directory
+setwd("C:/Users/Startklar/OneDrive - Vrije Universiteit Amsterdam/Measurement Models in Quantitative Research/3 - Practicals/Meas_Models")
+
+# Installing  and loading the required packages
+library(ggplot2)
+library(visreg)
+library(MASS)
+
+```
+
+# Regression
+
+Now, we can go back to the main topic. The main idea behind regression is that a dependent variable (DV) can be modeled as a combination of a single or multiple independent variables(IV). For example, we could model a variable $Y_{i}$ as the weighted sum of $k$ independent variables, denoted by $X_{i}$, and an error term $\varepsilon_{i}$. Note that in this notation $i$ refers to an individual. Thus, we have: 
+
+```{=tex}
+\begin{aligned}
+y_{i} = \beta_{0} + \beta_{1}x_{1i}+...+\beta_{k}x_{ki} + \varepsilon_{i}
+\end{aligned}
+```
+
+## Assumptions
+
+### 1 - Normality of  $y_{i}$ - and hence of $\varepsilon_{i}$ 
+
+### 2 - Exogeneity - $E(\varepsilon_{i}|x_{i})=0$
+
+
+# Example - Birth weight
+
+```{r data, message = FALSE}
+data(birthwt, package = "MASS")
+
+ # Let's check what this data has
+head(birthwt)
+?birthwt
+
+```
+
+## Simple regression - Continuous IV
+
+Our goal with this data will be to estimate children weight at birth. To do so, we can first just employ age as an IV and see our results. Beforehand though, let us see a scatter with these two variables
+
+```{r simpreg_cont_plots, echo=FALSE, warning= FALSE, message = FALSE}
+# Individual variables
+ggplot(data = birthwt, aes(bwt)) +                  
+  geom_histogram(aes(y = after_stat(density)), color = "darkblue", fill = "white") +
+  theme_minimal() +
+  labs(title = "Birth weight (grm)", y = "Density", x = "Grams") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggplot(data = birthwt, aes(age)) +                  
+  geom_histogram(aes(y = after_stat(density)), color = "darkgreen", fill = "white") +
+  theme_minimal() +
+  labs(title = "Age (years)", y = "Density", x = "Years") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+# Scatter plot
+ggplot(data = birthwt) +
+  geom_point(aes(y = bwt, x = age), color = "blue", size = 3, alpha = 0.5) +
+  theme_minimal() +
+  labs(title = "Bwt vs. age", y = "Birth weight (grm)", x = "Age (years)") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+```
+
+
+```{r simpreg_cont, echo=FALSE}
+# Perform the regression
+reg1 <- lm(bwt ~ age, data = birthwt) # lm stands for linear model
+#reg1_alt <- glm(bwt ~ age, data = birthwt, family = "gaussian") # glm stands for generalized linear model
+
+# Check the results
+summary(reg1)
+#summary(reg1_alt)
+
+```
+
+## Simple regression - Dummy IV
+
+The interpretation of the regression results vary considerably when we are dealing with IV's that are dummies. We can see this by regressing the birth weight against the dummy variables that indicates whether the mother smoked (0 = Didn't Smoke, 1 = Smoked).You'll frequently encounter dummy variables since they are a common way of representing the presence/absence of a trait.
+
+```{r simpreg_dum, echo=FALSE}
+# Perform the regression
+reg2 <- lm(bwt ~ smoke, data = birthwt)
+
+# Check the results
+summary(reg2)
+
+```
+
+
+
+
