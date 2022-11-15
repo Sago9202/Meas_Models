@@ -1,0 +1,54 @@
+---
+title: "Regression_W1"
+author: "Laura Eberlein, Santiago Gómez-Echeverry & Dimitris Pavlopoulos"
+date: "2022-11-11"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Regression
+
+The main goal of regression analysis is to see how a set of independent variables explain the variation of a dependent variables. In its simplest form, we would have a multiple linear regression of the form:
+
+$Y_{i} = \beta_{0} + \beta_{1}X_{1i}+...+\beta_{k}X_{ki} + \varepsilon_{i}$
+
+# Assumptions OLS:
+
+1) Normality
+2) Exogeneity
+3) Lack of perfect multicollinearity
+4) Homoscedasticity
+5) Independence of errors
+6) Linearity
+
+```{r regression, echo=FALSE}
+
+# We are deleting the missing values since they are by definition not included in the regression.
+#dat_reg1 <- na.omit(dat[,c("trstplt", "agea", "gender", "educ")])
+#dat_reg1
+
+# Reg 1.
+# DV: From 0 to 10, how much do you trust in politicians?
+
+# IV: age, gender, educ 
+#reg1 <- lm(trstplt ~ agea + gender + educ, data = dat_reg1)
+#summary(reg1)
+
+# How do we interpret these results?
+
+# Plot regression
+
+
+# Reg 2.
+# IV: age, gender, education, political interest,
+#table(dat$polintr)
+
+
+# Assumptions
+
+
+
+```
