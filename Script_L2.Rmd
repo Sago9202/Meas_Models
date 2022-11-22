@@ -1,17 +1,17 @@
 ---
 title: "Session 2: Recap Regression Analysis"
 author: "Laura Eberlein, Santiago Gómez-Echeverry & Dimitris Pavlopoulos"
-date: "2022-11-15"
-output: md_document
+date: "2022-11-21"
+output: html_document
 ---
 
 # Setting up
 
 The idea of this practical is to go through the basics of multiple regression analysis, which you should know from previous courses.
 
-Before diving into the core of the lecture, remember that you should always start your R session by arranging the workspace
+Before diving into the core of the lecture, remember that you should always start your R session by arranging the work space.
 
-```{r setup, warning = FALSE, message = FALSE}
+```{r chunk_1, warning = FALSE, message = FALSE}
 # Clean the environment 
 rm(list = ls())
 
@@ -20,34 +20,93 @@ setwd("C:/Users/Startklar/OneDrive - Vrije Universiteit Amsterdam/Measurement Mo
 
 # Installing  and loading the required packages
 library(ggplot2)
-library(visreg)
+library(car)
+library(lsr)
+library(skedastic)
 library(MASS)
 
 ```
 
-# Regression
+# Regression Modeling
 
-Now, we can go back to the main topic. The main idea behind regression is that a dependent variable (DV) can be modeled as a combination of a single or multiple independent variables(IV). For example, we could model a variable $Y_{i}$ as the weighted sum of $k$ independent variables, denoted by $X_{i}$, and an error term $\varepsilon_{i}$. Note that in this notation $i$ refers to an individual. Thus, we have: 
+Now, we can go back to our topic. The main idea behind regression is that a dependent variable (DV) can be modeled as a combination of a single or multiple independent variables (IV). For example, we could model a variable $y_{i}$ as the weighted sum of $k$ independent variables, denoted by $x_{i}$, and an error term $\varepsilon_{i}$. Note that in this notation $i$ refers to an individual. Thus, we have a population model of the form:
 
 ```{=tex}
 \begin{aligned}
-y_{i} = \beta_{0} + \beta_{1}x_{1i}+...+\beta_{k}x_{ki} + \varepsilon_{i}
+  y_{i} = \beta_{0} + \beta_{1}x_{1i}+...+\beta_{k}x_{ki} + \varepsilon_{i}
 \end{aligned}
 ```
+Keep in mind that this model is the basis of many other and that frequently, in all of them, we use greek letters to refer to parameters and latin letters to refer to variables. Based on this model, which we assume shows the real behavior of the variables in the population, we estimate the unknown parameters and with them obtain the expected value of $y_{i}$.The expected value of $y_{i}$,also referred as the estimated model, is termed as:
+
+```{=tex}
+\begin{aligned}
+  E[y_{i}|x_{1i}...x_{ki}] = \hat{\beta_{0}} + \hat{\beta_{1}}x_{1i}+...+\hat{\beta_{k}}x_{ki}
+\end{aligned}
+```
+But, wait, we didn't really talk about how we obtain the estimates of the parameters. Although there are several ways of doing this, the most frequently used is to perform Ordinary Least Squares (OLS). The OLS estimators are obtained by minimizing the sum of the square of the residuals (the estimated errors).
+
+```{=tex}
+\begin{aligned}
+  Min \sum_{i=i}^{n}\hat{\varepsilon_{i}}^{2} = \sum_{i=i}^{n}(y_{i} - E[y_{i}|x_{1i}...x_{ki}])^{2}
+\end{aligned}
+```
+Standard statistical modeling takes a closer inspection on the parameters since they give us information on the relationships between the variables. On the other hand, machine learning approaches focus on the expected value of the variable of interest since the objective there is to predict the value of a determined variable
 
 ## Assumptions
 
-### 1 - Normality of  $y_{i}$ - and hence of $\varepsilon_{i}$ 
+### 1 - Errors are independent and identically distributed (i.i.d.)
+
+When we say independent we imply that the values of
 
 ### 2 - Exogeneity - $E(\varepsilon_{i}|x_{i})=0$
 
+This is equivalent to saying $Cov(\varepsilon_{i}, x_{i}) = 0$, which implies that there is no part of the error that correlates with the explanatory variables. There are several issues that can make this assumption not feasible:
+
+-   Omitted Variable
+-   Reverse Causality
+-   Measurement Error
+-   Selection Bias
+
+Keep in mind that this assumptions must hold for us to be able to say that the we are observing a *causal* effect of $x_{i}$ on $y_{i}$. Thus, achieving this is the focus of fields as impact evaluation.
+
+### 3 - Absence of influential outliers
+
+As you saw in the equations at the beginning of this lesson, regression analysis is built on the concept of average (that's why we used the $E[y_{i}|.]$).
+
+### 4 - Lack of perfect multicollinearity
+
+### 5 - Homoscedasticity
+
+Also know as homogeneity of variance, this assumption entails that the variance of the errors is constant across the IV's. In other words, if we plot the residuals against our independent variables, and check two different points of the IV, the variance of the residuals shall be equivalent. This sounds a bit convoluted but maybe a plot might help to see the distinction between homoscedasticity and heteroscedasticity.
+
+```{r chunk_H, message = FALSE}
+set.seed(42)
+
+# Homoscedasticity
+n <- 1000
+a <- 0; b <- 1
+x <- rnorm(n, mean = 0, sd = 1)
+e <- rnorm(n, mean = 0, sd = 1)
+y_hat <- a + b*x + e
+plot(e, y_hat)
+
+
+# Heteroscedasticity
+n <- 1000
+a <- 0; b <- 1
+e_het <- rnorm(n, mean = 0, sd = (1+0.4*x))
+y_hat_het <- a + b*x + e_het
+plot(e_het, y_hat_het)
+
+
+```
 
 # Example - Birth weight
 
-```{r data, message = FALSE}
+```{r chunk_2, message = FALSE}
 data(birthwt, package = "MASS")
 
- # Let's check what this data has
+# Let's check what this data has
 head(birthwt)
 ?birthwt
 
@@ -57,7 +116,7 @@ head(birthwt)
 
 Our goal with this data will be to estimate children weight at birth. To do so, we can first just employ age as an IV and see our results. Beforehand though, let us see a scatter with these two variables
 
-```{r simpreg_cont_plots, echo=FALSE, warning= FALSE, message = FALSE}
+```{r chunk_3, warning= FALSE, message = FALSE}
 # Individual variables
 ggplot(data = birthwt, aes(bwt)) +                  
   geom_histogram(aes(y = after_stat(density)), color = "darkblue", fill = "white") +
@@ -80,8 +139,7 @@ ggplot(data = birthwt) +
 
 ```
 
-
-```{r simpreg_cont, echo=FALSE}
+```{r chunk_4}
 # Perform the regression
 reg1 <- lm(bwt ~ age, data = birthwt) # lm stands for linear model
 #reg1_alt <- glm(bwt ~ age, data = birthwt, family = "gaussian") # glm stands for generalized linear model
@@ -92,11 +150,36 @@ summary(reg1)
 
 ```
 
+The results include:
+
+*Residuals distribution*
+
+*Information on coefficients*
+
+*Residual standard error*
+
+*F-statistic*
+
+*Adjusted R-squared*
+
+Now, to end with this part, let us see the scatter plot again but now including our linear estimate.
+
+```{r chunk_5, message = FALSE}
+plot1 <- ggplot(data = birthwt, aes(y = bwt, x = age)) +
+  geom_point(color = "blue", size = 3, alpha = 0.5) +
+  stat_smooth(method = "lm", col = "red") +
+  theme_minimal() +
+  labs(title = "Bwt vs. age", y = "Birth weight (grm)", x = "Age (years)") +
+  theme(plot.title = element_text(hjust = 0.5))
+plot1
+
+```
+
 ## Simple regression - Dummy IV
 
-The interpretation of the regression results vary considerably when we are dealing with IV's that are dummies. We can see this by regressing the birth weight against the dummy variables that indicates whether the mother smoked (0 = Didn't Smoke, 1 = Smoked).You'll frequently encounter dummy variables since they are a common way of representing the presence/absence of a trait.
+The interpretation of the regression results vary considerably when we are dealing with IV's that are dummies. We can see this by regressing the birth weight against the dummy variable that indicates whether the mother smoked (0 = Didn't Smoke, 1 = Smoked).You'll frequently encounter dummy variables since they are a common way of representing the presence/absence of a trait. Still, for including this variables in a regression analysis you must be sure that it is coded as 0 and 1; a common coding for these variables in surveys is 1 and 2 so you might have to recode it.
 
-```{r simpreg_dum, echo=FALSE}
+```{r chunk_6}
 # Perform the regression
 reg2 <- lm(bwt ~ smoke, data = birthwt)
 
@@ -105,6 +188,114 @@ summary(reg2)
 
 ```
 
+```{r chunk_7}
+# Perform the ANOVA
+aov1 <- aov(bwt ~ smoke, data = birthwt)
 
+# Check the results
+summary(aov1)
 
+# However, in ANOVA, there is a strong culture on presenting effect sizes by measures as eta
+etaSquared(aov1)
 
+```
+
+The coefficient $\beta = -283.78, t = -2.653, p = 0.008$ represents the difference between the smoker and the non smoker mothers in terms of the birth weight of their children measured in grams. Thus, we can state that the children of mothers who have smoked weigh, on average, -283.78 grams less than the children from non smoking moms.
+
+## 'Multiple' regression - Categorical IV (factors in R)
+
+When dealing with categorical variables in a regression, the interpretation of the coefficients also change. Moreover, we need to keep in mind that since the numbers in categorical variables don't have a proper algebraic value we can't just include them in the regression; we will use a set of dummy variables, one corresponding to each category. For instance, let's assume that we have a categorical variable for life satisfaction with 4 possible responses: Very Dissatisfied (VD), Dissatisfied (D), Satisfied (S), Very Satisfied (VS). This is what is frequently termed as a Likert Scale. Given the aforementioned, we cannot simply include the categorical variable as it is (i.e., the jump from VD to D is not the same as from D to S), instead we want to include one dummy for each satisfaction level. However, if we include all the dummy variables the problem won't be computable since we have perfect multicollinearity; if we have information on the first three response categories we know entirely how the last category is going to behave. Thus, in these situations we will always include c-1 dummy variables, being c the number of categories of our variable of interest. The indicator that is not included in the regression is called base category and will be the guiding level for the interpretation of the results
+
+Let's see with a bit more detail how this works with our example on birth weight. Now, we will see the relationship between race and birth weight. To perform this type of regression we need to be certain that R takes our categorical variable as a factor first.
+
+```{r chunk_8}
+# Transform race into a factor
+birthwt$race <- factor(birthwt$race, 
+                       levels = 1:3,
+                       labels = c("White", "Black", "Other") )
+is.factor(birthwt$race) # To be certain that is a factor
+```
+
+Having checked that our main IV is a factor we can run our regression.
+
+```{r simpreg_cat}
+# Perform the regression
+reg3 <- lm(bwt ~ race, data = birthwt)
+# Check the results
+summary(reg3)
+```
+
+As you see, R decided to exclude a category by default in order to be able to estimate the OLS regression. In this case, the category excluded was "White", which means that the remaining coefficients shall be interpreted relative to this base category. Therefore, the coefficient $\beta = -383.03, t = -2.425, p = 0.016$ denotes that there is not a statistically significant difference (at the 95% CL) between 'White' and 'Black' people in terms of the weights of their newborns. In contrast, the individuals that belong to 'Other' race have, on average, children with 297.44 grams less ($\beta = -297.44, t = -2.615, p = 0.009$) than their 'White' counterparts. Another crucial aspect to note in this type of regression is that the intercept coefficient, $\beta_{0}$, corresponds to the expected outcome for the base category, or for this specific example, the average new born weight of individuals on the 'White' race category.
+
+Depending on the situation, we might want to use a different base category for our regression. To do so, we can simply use the function relevel as presented below.
+
+```{r simpreg_cat_2}
+birthwt$race <- relevel(birthwt$race, ref = 2)
+# Perform the regression
+reg4 <- lm(bwt ~ race, data = birthwt)
+# Check the results
+summary(reg4)
+```
+
+## Multiple regression
+
+```{r multreg}
+# Perform the regression
+reg5 <- lm(bwt ~ age + smoke + race, data = birthwt)
+
+# Check the results
+summary(reg5)
+
+```
+
+## Checking the assumptions
+
+### 1 - Normality of the residuals.
+
+```{r chunk X1}
+# Checking the normality in the residuals
+plot(reg5, which = c(1,2)) 
+```
+
+### 3 - Absence of influential outliers
+
+```{r chunk X2}
+plot(reg5, which = 4) # Direct function to observe the influential observations
+plot(reg5, which = 5)
+plot(reg5, which = 6)
+
+# We could also reproduce this exercise manually with the function cooks.distance()
+cooks_d <- cooks.distance(reg5)
+
+# Plot the Cook's Distance using the traditional 4/n criterion
+sample_size <- nrow(birthwt)
+plot(cooks_d, pch="*", cex=2, main="Influential Obs by Cooks distance")  # plot cook's distance
+abline(h = 4/sample_size, col="red")  # add cutoff line
+text(x=1:length(cooks_d)+1, y=cooks_d, labels=ifelse(cooks_d>4/sample_size, names(cooks_d),""), col="red")  # add labels
+
+# https://ggplot2.tidyverse.org/reference/fortify.lm.html
+
+```
+
+### 4 -Multicollinearity
+
+```{r chunk X3}
+# Check the correlation between the variables.
+#corr()
+vif(reg5)
+```
+
+### 5 - Homoscedasticity
+
+```{r chunk X4}
+plot(reg5, which = 1)
+
+# Breusch-Pagan test
+bp <- as.data.frame(breusch_pagan(reg5))
+bp
+
+# White test
+wht <- as.data.frame(white(reg5))
+wht
+
+```
