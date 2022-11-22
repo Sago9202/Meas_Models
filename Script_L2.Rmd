@@ -2,7 +2,12 @@
 title: "Session 2: Recap Regression Analysis"
 author: "Laura Eberlein, Santiago Gómez-Echeverry & Dimitris Pavlopoulos"
 date: "2022-11-21"
-output: html_document
+output:
+  github_document:
+    toc: yes
+    toc_depth: 5
+editor_options:
+  chunk_output_type: inline
 ---
 
 # Setting up
