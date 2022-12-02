@@ -36,25 +36,22 @@ library(MASS)
 
 Now, we can go back to our topic. The main idea behind regression is that a dependent variable (DV) can be modeled as a combination of a single or multiple independent variables (IV). For example, we could model a variable $y_{i}$ as the weighted sum of $k$ independent variables, denoted by $x_{i}$, and an error term $\varepsilon_{i}$. Note that in this notation $i$ refers to an individual. Thus, we have a population model of the form:
 
-```{=tex}
-\begin{aligned}
+$$
   y_{i} = \beta_{0} + \beta_{1}x_{1i}+...+\beta_{k}x_{ki} + \varepsilon_{i}
-\end{aligned}
-```
+$$
+
 Keep in mind that this model is the basis of many other and that frequently, in all of them, we use greek letters to refer to parameters and latin letters to refer to variables. Based on this model, which we assume shows the real behavior of the variables in the population, we estimate the unknown parameters and with them obtain the expected value of $y_{i}$.The expected value of $y_{i}$,also referred as the estimated model, is termed as:
 
-```{=tex}
-\begin{aligned}
-  E[y_{i}|x_{1i}...x_{ki}] = \hat{\beta_{0}} + \hat{\beta_{1}}x_{1i}+...+\hat{\beta_{k}}x_{ki}
-\end{aligned}
-```
+$$
+  E[y_{i}|x_{1i}...x_{ki}] = \hat{\beta}_{0}+ \hat{\beta}_{1}x_{1i}+...+\hat{\beta}_{k}x_{ki}
+$$
+
 But, wait, we didn't really talk about how we obtain the estimates of the parameters. Although there are several ways of doing this, the most frequently used is to perform Ordinary Least Squares (OLS). The OLS estimators are obtained by minimizing the sum of the square of the residuals (the estimated errors).
 
-```{=tex}
-\begin{aligned}
-  Min \sum_{i=i}^{n}\hat{\varepsilon_{i}}^{2} = \sum_{i=i}^{n}(y_{i} - E[y_{i}|x_{1i}...x_{ki}])^{2}
-\end{aligned}
-```
+$$
+  Min \sum_{i=i}^{n}\hat{\varepsilon}_{i}^{2} = \sum_{i=i}^{n}(y_{i} - E[y_{i}|x_{1i}...x_{ki}])^{2}
+$$
+
 Standard statistical modeling takes a closer inspection on the parameters since they give us information on the relationships between the variables. On the other hand, machine learning approaches focus on the expected value of the variable of interest since the objective there is to predict the value of a determined variable
 
 ## Assumptions

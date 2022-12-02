@@ -79,6 +79,10 @@ variables, denoted by $x_{i}$, and an error term $\varepsilon_{i}$. Note
 that in this notation $i$ refers to an individual. Thus, we have a
 population model of the form:
 
+$$
+  y_{i} = \beta_{0} + \beta_{1}x_{1i}+...+\beta_{k}x_{ki} + \varepsilon_{i}
+$$
+
 Keep in mind that this model is the basis of many other and that
 frequently, in all of them, we use greek letters to refer to parameters
 and latin letters to refer to variables. Based on this model, which we
@@ -87,11 +91,19 @@ estimate the unknown parameters and with them obtain the expected value
 of $y_{i}$.The expected value of $y_{i}$,also referred as the estimated
 model, is termed as:
 
+$$
+  E[y_{i}|x_{1i}...x_{ki}] = \hat{\beta}_{0}+ \hat{\beta}_{1}x_{1i}+...+\hat{\beta}_{k}x_{ki}
+$$
+
 But, wait, we didn’t really talk about how we obtain the estimates of
 the parameters. Although there are several ways of doing this, the most
 frequently used is to perform Ordinary Least Squares (OLS). The OLS
 estimators are obtained by minimizing the sum of the square of the
 residuals (the estimated errors).
+
+$$
+  Min \sum_{i=i}^{n}\hat{\varepsilon}_{i}^{2} = \sum_{i=i}^{n}(y_{i} - E[y_{i}|x_{1i}...x_{ki}])^{2}
+$$
 
 Standard statistical modeling takes a closer inspection on the
 parameters since they give us information on the relationships between
