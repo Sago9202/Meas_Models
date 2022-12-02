@@ -92,7 +92,7 @@ of $y_{i}$.The expected value of $y_{i}$,also referred as the estimated
 model, is termed as:
 
 $$
-  E[y_{i}|x_{1i}...x_{ki}] = \hat{\beta}_{0}+ \hat{\beta}_{1}x_{1i}+...+\hat{\beta}_{k}x_{ki}
+  E[y_{i}|x_{1i}...x_{ki}] = \hat{\beta_{0}}+ \hat{\beta}_{1}x_{1i}+...+\hat{\beta}_{k}x_{ki}
 $$
 
 But, wait, we didn’t really talk about how we obtain the estimates of
