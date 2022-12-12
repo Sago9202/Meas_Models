@@ -671,9 +671,11 @@ subset of variables* that we want to work with.
 When talking about descriptive statistics, we first need to know what
 type of variable each item is.
 
-*Continuous* For *continuous* items, the type of descriptive statistics
-we present are related to central tendency and variability measures. We
-will use the descr() function from the summarytools package.
+*Continuous*
+
+For *continuous* items, the type of descriptive statistics we present
+are related to central tendency and variability measures. We will use
+the descr() function from the summarytools package.
 
 Be aware that this function will give you results if you use them with
 categorical variables, but these would not be meaningful. From the
