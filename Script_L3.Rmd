@@ -1,0 +1,209 @@
+---
+title: "Session 3: Factor Analysis"
+author: "Laura Eberlein, Santiago Gómez-Echeverry & Dimitris Pavlopoulos"
+date: "2022-12-05"
+output:
+  github_document:
+    toc: yes
+    toc_depth: 5
+editor_options:
+  chunk_output_type: inline
+---
+
+Before diving into the core of the lecture, remember that you should always start your R session by arranging the work space.
+
+```{r chunk_1, warning = FALSE, message = FALSE}
+rm(list = ls()) # Clean the environment 
+library(lavaan)
+library(psych)
+library(haven) # To import the data from SPSS
+library(memisc) # To make a fast description of the data
+library(corrplot) 
+options(digits = 3) # We only want to see three numbers after the decimal point
+```
+
+# Factor Analysis
+
+Let us start our factor analyses with the simplest example possible: a one factor model. This model would imply that the items that we observe can be expressed as:
+
+$$
+  X_{mi} = \mu_{m} + \lambda_{m}\theta_{i} + \epsilon_{mi}
+$$
+
+Upon close inspection you will notice that this model is quite similar to the regression that we saw in the previous session. In fact, factor analysis is equivalent to a linear regression with unobserved predictor(s). However, since we are dealing with an unobserved variable, which we call factor, and since now we are using a different sub-index we will use a different notation. In this case we will have that:
+
+-   $X_{mi}$: Score of person $i$ on item $j$.
+-   $\mu_{m}$: Intercept of the item $m$. This is the value of the item if the factor takes the value of zero, and usually matches the mean item score.
+-   $\lambda_{m}$: Factor loading of item $j$; this term quantifies the extent to which the observed variable relates to a given factor.
+-   $\theta_{i}$: Score of the person $i$ in the unobserved factor. Notice that as we said, we are using Greek terms to refer to unobserved elements in our equations.
+-   $\epsilon_{mi}$: Residual variance of the observed item $X_{m}$ for individual $i$. In other words, this term shows the part of $X_{mi}$ that is not explained by the common factor $\theta_{i}$.
+
+In addition to the main equation, it is also good to think about the variances. We can express the variance of the observed items as the sum between the shared variance due to the common unobserved factor (commonality), and the unique variance of each item (uniqueness). The latter contains two parts that we cannot truly untangle: the item-specific variance and the measurement error. We can express the ideas expressed in this paragraph with the following equation:
+
+$$
+  \sigma^{2}_{X_{m}} = \lambda^{2}_{m}\sigma^{2}_{\theta}+\sigma^{2}_{\varepsilon_{m}}
+$$ 
+Or equivalently
+
+$$
+  Var(X_{m}) = \lambda_{m}^{2}Var(\theta) + Var(\epsilon_{m})
+$$ 
+
+It is good to keep in mind that we assume in our model that once controlled for the unobserved factor, there shouldn't be any relationship between our indicators. 
+
+
+On the other hand, just as in regression analysis, we have to estimate the intercepts, the slopes and the residuals of the equation. However, there is are some additional unknowns in this model and all of them stem from the unobserved factor. Given the latter we must make an identification assumption to be able to run our model. The most frequent options for identification are:
+
+- $\sigma^{2}_{\theta$: Factor variance set equal to unity.
+- $\lambda_{1}=1$: First loading set equal to 1 (marker variable)
+- $\mu_{\theta} = 0$: Factor mean set equal to zero.
+
+# Example - SPSS Anxiety
+
+In this practical we will explore data on the anxiety that social science students experience when faced with a statistics course (much like this). You can see a bit more about this data in here. Now, let's load the data, check how many observations we have and check the first cases.
+
+```{r chunk_2, warning = FALSE, message = FALSE}
+setwd("C:/Users/Startklar/OneDrive - Vrije Universiteit Amsterdam/Measurement Models in Quantitative Research/3 - Practicals/Week 2 - Factor Analysis")
+
+anxiety <- read_sav("SAQ8.sav")
+dim(anxiety) # We have 2,571 obs. with 8 variables
+head(anxiety)
+```
+
+As we see, luckily this data has some labels so we can easily see what the variables are about and what are the response categories. Let's check which items we have and let us get some descriptive statistics.
+
+```{r chunk_3, warning = FALSE, message = FALSE}
+# Labels of the variables
+description(anxiety)
+
+# Descriptive Statistics
+describe(anxiety)
+```
+
+Now that we know what the data contains, let us start with our analyses.
+
+# Correlation matrix
+
+EFA and CFA, like many other models that are embedded in Structural Equation Modeling (SEM) mainly require the correlation matrix to work with. Remember that the optimization method by which these models is achieved is by minimizing the difference between the observed correlation matrix and the one that is implied by the model. Thus, let's see this matrix with a bit more detail
+
+```{r cov and corr, message = FALSE, warning = FALSE}
+# Covariance matrix
+cov_mat <- cov(anxiety)
+cov_mat
+
+# Correlation matrix
+cor_mat <- cor(anxiety)
+cor_mat
+
+# Correlation Plot
+corrplot(cor_mat)
+```
+
+Great! Now we know how is the relationship between our variables. Still, we haven't tested if this relationship is statistically significant. Remember that this is relevant since we want our variables to be strongly related to conduct a factor analysis. To do these significance test, let us perform some indexing (as we saw in the first class), and a very simple loop.
+
+```{r cortest, message = FALSE, warning = FALSE}
+# Remember subsetting?
+anxiety[,which(colnames(anxiety)==c("q01", "q02"))]
+anxiety[,c(1,2)]
+
+anxiety <- as.matrix(anxiety)
+
+for (i in 1:3){
+  for (j in 1:3){
+   if (i!=j){
+    print(paste0("Test Q", i,",Q", j))
+    print(cor.test(anxiety[,i], anxiety[,i]))  
+   }
+   if (i==j){
+   }
+ }
+}
+
+```
+
+Keep in mind that loops can very helpful to perform repetitive processes, and they are at the core of any programming languages. In the case of *R*, there are also some additional function that perform some sort of loops for some particular situations. For those who are more interested on this, you can check the function *apply* and its variations.
+
+We saw that we shall also perform other tests to confirm that we can perform a factor analysis. Among these, we had the Kaiser-Meyer-Olkin criterion and the Barlett's test:
+
+```{r other tests, message = FALSE}
+# Kaiser Meyer Olkin
+KMO(anxiety)
+
+# Barlett's test
+cortest.bartlett(anxiety)
+```
+Now that we have checked the assumptions, we can proceed with the EFA. Keep in mind that to perform this analysis we will use the *efa()* function embedded in the lavaan package. However, you could alternatively use other functions such as *fa()*. Notice that the arguments of this function include: the data, the name of the observed variables, the number of factors, the rotation, and the maximization method employed to deal with the missing values. 
+
+```{r EFA_1, message = FALSE}
+fit_1 <- efa(data = anxiety, 
+             ov.names = paste0("q0",1:8),
+             nfactor = 1:4,
+             rotation = "geomin",
+             missing = "fiml")
+
+# The result we have is a list
+class(fit_1)
+```
+Remember that the whole idea of the rotation is that we can easily interpret the factor loadings, and that we define a relationship between the factors (orthogonal between oblique). The results from all the different analyses are within this list and we can access them simply by indexing, and use them to perform further procedures.
+
+```{r EFA_2, echo = FALSE, message = FALSE}
+# How do we interpret this?
+fit_1[[3]]
+fit_1$loadings
+
+# Let's explore the result with two factors
+summary(fit_1[[4]], nd = 3L, cutoff = 0.3, dot.cutoff = 0.05)
+```
+
+
+```{r number of factors, message = FALSE, warning = FALSE}
+# We will get the eigen values
+ev <- eigen(cor_mat)
+ev$values
+
+# Automatic one
+scree(cor_mat, pc = FALSE)
+
+# With parallel analysis
+fa.parallel(anxiety, fa = "fa")
+```
+
+As we see, according to the screeplot and the parallel analysis, we should keep three factors. How would you interpret these factors? What can wee see in here? 
+
+Furthermore, we can inspect some of the fit measures to evaluate if the model that we are selecting is the most adequate for our data.
+
+```{r fit}
+# Remember loops?
+Fit <- matrix(data = NA, nrow = 4, ncol = 4) 
+
+for (i in 1:4){
+  Fit[,i] <- fitMeasures(fit_1[[i]], fit.measures = c("chisq","rmsea", "tli", "cfi"))
+}
+
+Fit
+```
+
+We are seeing some weird coefficients in the last column. Why do you think that this is? Should we trust these numbers to assess the quality of our model?
+
+Finally, let's think about the correlations between our variables. As we mentioned before, the observed indicators are assumed to be only related through the latent factor, which would imply that:
+
+$$
+  Cov(x_{i}, x_{i}) = \lambda_{j}\lambda_{i}
+$$ 
+This might not happen in practice, which would be an indicative of poor model fit. Let us check if this occurs.
+
+```{r retrieving factors, message = FALSE, warning = FALSE}
+# The correlations according to the model (without considering the main diagonal)
+fit_1$loadings$nf2[,1]%o%fit_1$loadings$nf2[,1]
+
+# The observed correlation
+cor_mat
+```
+Finally, we can retrieve our latent variables and store them in the data set
+
+```{r get factors, message = FALSE, warning = FALSE}
+fit_2 <- fa(anxiety, nfactors = 2)
+fa_scores <- factor.scores(anxiety, fit_2)
+anxiety <- cbind(anxiety, fa_scores$scores)
+head(anxiety)
+```
