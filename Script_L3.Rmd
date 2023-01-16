@@ -1,7 +1,7 @@
 ---
 title: "Session 3: Factor Analysis"
 author: "Laura Eberlein, Santiago Gómez-Echeverry & Dimitris Pavlopoulos"
-date: "2022-12-05"
+date: "2023-01-16"
 output:
   github_document:
     toc: yes
@@ -42,21 +42,19 @@ In addition to the main equation, it is also good to think about the variances. 
 
 $$
   \sigma^{2}_{X_{m}} = \lambda^{2}_{m}\sigma^{2}_{\theta}+\sigma^{2}_{\varepsilon_{m}}
-$$ 
-Or equivalently
+$$ Or equivalently
 
 $$
   Var(X_{m}) = \lambda_{m}^{2}Var(\theta) + Var(\epsilon_{m})
-$$ 
+$$
 
-It is good to keep in mind that we assume in our model that once controlled for the unobserved factor, there shouldn't be any relationship between our indicators. 
-
+It is good to keep in mind that we assume in our model that once controlled for the unobserved factor, there shouldn't be any relationship between our indicators.
 
 On the other hand, just as in regression analysis, we have to estimate the intercepts, the slopes and the residuals of the equation. However, there is are some additional unknowns in this model and all of them stem from the unobserved factor. Given the latter we must make an identification assumption to be able to run our model. The most frequent options for identification are:
 
-- $\sigma^{2}_{\theta$: Factor variance set equal to unity.
-- $\lambda_{1}=1$: First loading set equal to 1 (marker variable)
-- $\mu_{\theta} = 0$: Factor mean set equal to zero.
+-   $\sigma^{2}_{\theta}$: Factor variance set equal to unity.
+-   $\lambda_{1}=1$: First loading set equal to 1 (marker variable)
+-   $\mu_{\theta} = 0$: Factor mean set equal to zero.
 
 # Example - SPSS Anxiety
 
@@ -86,7 +84,7 @@ Now that we know what the data contains, let us start with our analyses.
 
 EFA and CFA, like many other models that are embedded in Structural Equation Modeling (SEM) mainly require the correlation matrix to work with. Remember that the optimization method by which these models is achieved is by minimizing the difference between the observed correlation matrix and the one that is implied by the model. Thus, let's see this matrix with a bit more detail
 
-```{r cov and corr, message = FALSE, warning = FALSE}
+```{r cov and corr}
 # Covariance matrix
 cov_mat <- cov(anxiety)
 cov_mat
@@ -112,7 +110,7 @@ for (i in 1:3){
   for (j in 1:3){
    if (i!=j){
     print(paste0("Test Q", i,",Q", j))
-    print(cor.test(anxiety[,i], anxiety[,i]))  
+    print(cor.test(anxiety[,i], anxiety[,j]))  
    }
    if (i==j){
    }
@@ -121,7 +119,7 @@ for (i in 1:3){
 
 ```
 
-Keep in mind that loops can very helpful to perform repetitive processes, and they are at the core of any programming languages. In the case of *R*, there are also some additional function that perform some sort of loops for some particular situations. For those who are more interested on this, you can check the function *apply* and its variations.
+Keep in mind that loops can very helpful to perform repetitive processes, and they are at the core of any programming languages. In the case of *R*, there are also some additional functions that perform diverse sorts of loops for some particular situations. For those who are more interested on this, you can check the function *apply* and its variations.
 
 We saw that we shall also perform other tests to confirm that we can perform a factor analysis. Among these, we had the Kaiser-Meyer-Olkin criterion and the Barlett's test:
 
@@ -132,7 +130,10 @@ KMO(anxiety)
 # Barlett's test
 cortest.bartlett(anxiety)
 ```
-Now that we have checked the assumptions, we can proceed with the EFA. Keep in mind that to perform this analysis we will use the *efa()* function embedded in the lavaan package. However, you could alternatively use other functions such as *fa()*. Notice that the arguments of this function include: the data, the name of the observed variables, the number of factors, the rotation, and the maximization method employed to deal with the missing values. 
+
+According to this results, we do have a strong justification for conducting a Factor Analysis. Now that we have checked the assumptions, we can proceed with the EFA.
+
+Keep in mind that to perform this analysis we will use the *efa()* function embedded in the *lavaan* package. However, you could alternatively use other functions such as *fa()*. Notice that the arguments of this function include: the data, the name of the observed variables, the number of factors, the rotation, and the maximization method employed to deal with the missing values.
 
 ```{r EFA_1, message = FALSE}
 fit_1 <- efa(data = anxiety, 
@@ -144,17 +145,17 @@ fit_1 <- efa(data = anxiety,
 # The result we have is a list
 class(fit_1)
 ```
-Remember that the whole idea of the rotation is that we can easily interpret the factor loadings, and that we define a relationship between the factors (orthogonal between oblique). The results from all the different analyses are within this list and we can access them simply by indexing, and use them to perform further procedures.
 
-```{r EFA_2, echo = FALSE, message = FALSE}
+Remember that the whole idea of the rotation is that we can easily interpret the obstained factors and factor loadings and that we define a relationship between the factors (orthogonal between oblique). The results from all the different analyses are within this list and we can access them simply by indexing, and use them to perform further procedures. Let us for instance, explore the results of the model with three factors first. We can go further and see the factor loadings from all the different model specifications or ask R to give us a detailed summary of the results of a specific model.
+
+```{r EFA_2, message = FALSE}
 # How do we interpret this?
 fit_1[[3]]
 fit_1$loadings
 
 # Let's explore the result with two factors
-summary(fit_1[[4]], nd = 3L, cutoff = 0.3, dot.cutoff = 0.05)
+summary(fit_1[[2]], nd = 3L, cutoff = 0.3, dot.cutoff = 0.05)
 ```
-
 
 ```{r number of factors, message = FALSE, warning = FALSE}
 # We will get the eigen values
@@ -168,9 +169,13 @@ scree(cor_mat, pc = FALSE)
 fa.parallel(anxiety, fa = "fa")
 ```
 
-As we see, according to the screeplot and the parallel analysis, we should keep three factors. How would you interpret these factors? What can wee see in here? 
+In the first part of code just presented we see the different eigen values, which represent the the variance that each additional factor brings to the table when included. These values are closely linked to the ones that we see in the screeplot, although they are not exactly the same, since the latter represent the share over the total variance of each additional factor.
 
-Furthermore, we can inspect some of the fit measures to evaluate if the model that we are selecting is the most adequate for our data.
+Let us think about this calmly with the numbers we see as an example. The first eigenvalue is 3.057, and the second eigenvalue is 1.067. That means that the share of the variance that the second factor is 1.067/(3.057+1.067) = 0.259. Thus, if we were to keep this logic, each additional factor that we contrast is going to be measured against the total variance given by the remaining factors and the factor itself (e.g., for the third factor it would be 0.958/(3.057+1.067+0.958)) which will inevitably lead to a constantly decreasing screeplot.
+
+As we see, it is not completely clear how many factor we should select in this case. We do know however that: (i) the Kaiser-Guttman rule suggest a unique factor, (ii) the parallel analysis suggest to keep three factors, and (iii) there is a 'knee' at the two factors mark suggesting that this is a sensible choice. All things considered, we will go with 2 factor model in this case. How would you interpret these factors? What can wee see in here? (Hint: Check the summary of the model that is above and think on the factor loadings that we estimated).
+
+Furthermore, we can inspect some of the fit measures to evaluate if the model that we are selecting is the most adequate for our data. To do this we can also use some loops.
 
 ```{r fit}
 # Remember loops?
@@ -189,8 +194,7 @@ Finally, let's think about the correlations between our variables. As we mention
 
 $$
   Cov(x_{i}, x_{i}) = \lambda_{j}\lambda_{i}
-$$ 
-This might not happen in practice, which would be an indicative of poor model fit. Let us check if this occurs.
+$$ This might not happen in practice, which would be an indicative of poor model fit. Let us check if this occurs.
 
 ```{r retrieving factors, message = FALSE, warning = FALSE}
 # The correlations according to the model (without considering the main diagonal)
@@ -199,7 +203,8 @@ fit_1$loadings$nf2[,1]%o%fit_1$loadings$nf2[,1]
 # The observed correlation
 cor_mat
 ```
-Finally, we can retrieve our latent variables and store them in the data set
+
+Finally, we can retrieve our latent variables and store them in the data set. This is a common practice when you want to employ the factors in aurther analyses
 
 ```{r get factors, message = FALSE, warning = FALSE}
 fit_2 <- fa(anxiety, nfactors = 2)
