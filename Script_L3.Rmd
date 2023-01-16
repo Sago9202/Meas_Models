@@ -194,7 +194,8 @@ Finally, let's think about the correlations between our variables. As we mention
 
 $$
   Cov(x_{i}, x_{i}) = \lambda_{j}\lambda_{i}
-$$ This might not happen in practice, which would be an indicative of poor model fit. Let us check if this occurs.
+$$ 
+This might not happen in practice, which would be an indicative of poor model fit. Let us check if this occurs.
 
 ```{r retrieving factors, message = FALSE, warning = FALSE}
 # The correlations according to the model (without considering the main diagonal)

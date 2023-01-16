@@ -95,6 +95,11 @@ $$
   E[y_{i}|x_{1i}...x_{ki}] = \hat{\beta_{0}}+ \hat{\beta}_{1}x_{1i}+...+\hat{\beta}_{k}x_{ki}
 $$
 
+It is relevant to remember that an expected value is at the end just an
+average. Thus, what we are seeing here is the average of $y_{i}$ given
+specific values of $x_{i}$; this average is a variable and not a
+constant!
+
 But, wait, we didn’t really talk about how we obtain the estimates of
 the parameters. Although there are several ways of doing this, the most
 frequently used is to perform Ordinary Least Squares (OLS). The OLS
@@ -115,7 +120,7 @@ is to predict the value of a determined variable
 
 ### 1 - Errors are independent and identically distributed (i.i.d.)
 
-When we say independent we imply that the values of
+This assumption has two implications
 
 ### 2 - Exogeneity - $E(\varepsilon_{i}|x_{i})=0$
 
@@ -137,9 +142,31 @@ achieving this is the focus of fields as impact evaluation.
 
 As you saw in the equations at the beginning of this lesson, regression
 analysis is built on the concept of average (that’s why we used the
-$E[y_{i}|.]$).
+$E[y_{i}|.]$). Another way to see this is graphically: we construct a
+line that denotes the relationship between our variables! This reliance
+on the mean is a crucial feature of OLS, and can represent an issue when
+dealing with variables with heavy outliers (rather absurd result
+compared to the others). If we have influential outliers in our sample,
+means will not be an adequate measure of central tendency as they will
+be biased towards the direction of the outlier. For example, if we were
+to examine the
 
 ### 4 - Lack of perfect multicollinearity
+
+Mullticolinearity occurs when at least two of our independent variables
+are strongly interrelated. That is, these variables relate to the extent
+that we can use one as a proxy for the other. For instance, if we are
+interested in the dynamics of transition from school to the labor market
+we might want to use education as an independent variable to see how it
+affects people’s wage. If we were to include in our regression analysis
+the years of education that person has AND the educational level
+(bachelor, master, doctorate, etc.) we would probably have a
+mullticollinearity problem, since from the latter variable I can easily
+approach the former. Perfect multicollinearity refers to the situation
+when we can perfectly predict one variable by using another set of
+variables. In this situation, we cannot implement the regression and we
+should exclude one of the variables. We will discuss this a bit more
+when we talk about categorical independent variables.
 
 ### 5 - Homoscedasticity
 
@@ -273,15 +300,44 @@ summary(reg1)
 
 The results include:
 
-*Residuals distribution*
+*Residuals distribution:*
 
-*Information on coefficients*
+Here we see the most relevant parts of the residual’s distribution: the
+minimum, the quartiles, and the maximum. This is the same information
+that we would see if we were to make a boxplot with the residuals, and
+it helps us to see if they follow a normal distribution as we want.
+
+*Information on coefficients:*
+
+Our output on the coefficients include 4 elements for each variable and
+for the intercept: the estimate, the standard error, the t-statistic,
+and the p-value associated with the latter. Remember that the hypothesis
+test conducted here is whether the parameter is equal to zero
+($H_{0}: \beta = 0$), and we shall interpret the t-statistic and the
+p-value accordingly.
 
 *Residual standard error*
 
 *F-statistic*
 
-*Adjusted R-squared*
+The F-statistic is a measure to test for joint significance. That is, we
+test if at least one of our parameters is different from zero
+($H_{0}: \beta_{1} = \beta_{2} = ,..., \beta_{k} = 0$). The idea behind
+this test is to check if we have any predictive power in our independent
+variables at all. We construct this statistic by dividing the ESS over
+the RSS.
+
+*R-squared information*
+
+A key indicator in regression analysis is the $R^{2}$ which corresponds
+to the fraction of the variance of the dependent variable that we
+explain with our model. Thus, it ranges between 0 and 1, and the higher
+it is the better our model performs at prediction. In addition to the
+$R^{2}$, R shows us the adjusted $R^{2}$ that take into consideration
+that if we include many variables the explain part will artificially
+inflate. Keep in mind that we will only use the $R^{2}$ when we have a
+simple regression; on multiple regression we are always interested in
+the adjusted $R^{2}$.
 
 Now, to end with this part, let us see the scatter plot again but now
 including our linear estimate.
@@ -374,18 +430,19 @@ a proper algebraic value we can’t just include them in the regression;
 we will use a set of dummy variables, one corresponding to each
 category. For instance, let’s assume that we have a categorical variable
 for life satisfaction with 4 possible responses: Very Dissatisfied (VD),
-Dissatisfied (D), Satisfied (S), Very Satisfied (VS). This is what is
-frequently termed as a Likert Scale. Given the aforementioned, we cannot
-simply include the categorical variable as it is (i.e., the jump from VD
-to D is not the same as from D to S), instead we want to include one
-dummy for each satisfaction level. However, if we include all the dummy
-variables the problem won’t be computable since we have perfect
+Dissatisfied (D), Satisfied (S), and Very Satisfied (VS). This is what
+is frequently termed as a Likert Scale. Given the aforementioned, we
+cannot simply include the categorical variable as it is (i.e., the jump
+from VD to D is not the same as from D to S), instead we want to include
+one dummy for each satisfaction level. However, if we include all the
+dummy variables the problem won’t be computable since we have perfect
 multicollinearity; if we have information on the first three response
-categories we know entirely how the last category is going to behave.
-Thus, in these situations we will always include c-1 dummy variables,
-being c the number of categories of our variable of interest. The
-indicator that is not included in the regression is called base category
-and will be the guiding level for the interpretation of the results
+categories we know with certainty how the last category is going to
+behave. Thus, in these situations we will always include c-1 dummy
+variables, being c the number of categories of our variable of interest.
+The indicator that is not included in the regression is called base
+category and will be the guiding level for the interpretation of the
+results
 
 Let’s see with a bit more detail how this works with our example on
 birth weight. Now, we will see the relationship between race and birth
@@ -514,6 +571,10 @@ summary(reg5)
 
 ### 1 - Normality of the residuals.
 
+First, we can check the fitted values against the model residuals. With
+this plot we can assess wheter the relationship we want to observe is in
+fact linear
+
 ``` r
 # Checking the normality in the residuals
 plot(reg5, which = c(1,2)) 
@@ -562,7 +623,7 @@ text(x=1:length(cooks_d)+1, y=cooks_d, labels=ifelse(cooks_d>4/sample_size, name
 
 ``` r
 # Check the correlation between the variables.
-#corr()
+
 vif(reg5)
 ```
 
@@ -573,11 +634,31 @@ vif(reg5)
 
 ### 5 - Homoscedasticity
 
+As you remember, the idea of homoscedasticity is that the variance of
+the residuals is constant across the different values of the independent
+variables. Therefore, we can check again the residuals vs. fitted values
+to assess this assumption.
+
 ``` r
 plot(reg5, which = 1)
 ```
 
 ![](Script_L2_files/figure-gfm/chunk%20X4-1.png)<!-- -->
+
+If we look at the dots at the three levels of the fitted values we see
+that there is a difference in terms of of the spread. However, this is
+not entirely clear at plain sight since there are some outliers at the
+tails of the distribution that might complicate this interpretation.
+Given this, we might want to conduct some additional tests. Most
+commonly this assumption is tested with the Breusch-Pagan or with the
+White test. In the Breusch-Pagan test we take the regression residuals,
+square them, and standardize them (divide them by their variance) to use
+them as a dependent variable in an additional regression against the
+whole set of independent variables. If we see any significant results it
+indicates that the variable predict the variance of the errors and
+therefore we have heteroscedasticity. Similarly, in the White test we
+test if the variance of the errors is explained by the independent
+variables and their squared terms.
 
 ``` r
 # Breusch-Pagan test
@@ -596,3 +677,8 @@ wht
 
     ##   statistic   p.value parameter       method alternative
     ## 1   7.70142 0.4631662         8 White's Test     greater
+
+Both tests indicate that we cannot reject the null hypothesis. That is,
+we don’t have enough evidence to say that there is heteroscedasticity.
+Apparently, this influential observations that we saw played a relevent
+role here.
