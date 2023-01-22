@@ -247,7 +247,7 @@ abline( lm(VoteYes ~ age, data = swiss1), lwd = 3  )
 
 ![](Script_L5_files/figure-gfm/plot%202-1.png)<!-- -->
 
-**\#Logistic Regression Model**
+**\Logistic Regression Model**
 
 We use the generalized linear model function *glm()* to estimate a
 logistic regression. The syntax is very similar to the lm regression
@@ -307,6 +307,9 @@ Differences in the log-odds, however, are difficult to interpret
 substantively. There are two main approaches to describing the
 substantive relationships that emerge from a logistic regression
 model: 1) odds-ratios, and 2) predicted probabilities.
+
+The odds ratio (OR) is a measure of how strongly an event is associated with exposure. 
+The odds ratio is a ratio of two sets of odds: the odds of the event occurring in an exposed group versus the odds of the event occurring in a non-exposed group.
 
 Converting log-odds differences to odds-ratios is very straightforward.
 As the log function is the inverse of the exponential function, we can
