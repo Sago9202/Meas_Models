@@ -441,7 +441,7 @@ min(s3)
 
 We predict that the probability of voting for the ban decreases with age
 for a respondent with centrist ideology (left-right = 5) from 65% to
-31%. This is a substantial effect.
+33%. This is a substantial effect.
 
 We can do the same across the range of the LeftRight variable for
 individuals with an age of 50.
