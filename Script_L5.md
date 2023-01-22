@@ -247,7 +247,7 @@ abline( lm(VoteYes ~ age, data = swiss1), lwd = 3  )
 
 ![](Script_L5_files/figure-gfm/plot%202-1.png)<!-- -->
 
-**\Logistic Regression Model**
+**Logistic Regression Model**
 
 We use the generalized linear model function *glm()* to estimate a
 logistic regression. The syntax is very similar to the lm regression
