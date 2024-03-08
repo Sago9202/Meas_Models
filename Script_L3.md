@@ -58,13 +58,11 @@ latter contains two parts that we cannot truly untangle: the
 item-specific variance and the measurement error. We can express the
 ideas expressed in this paragraph with the following equation:
 
-$$
-  \sigma^{2}_{X_{m}} = \lambda^{2}_{m}\sigma^{2}_{\theta}+\sigma^{2}_{\varepsilon_{m}}
-$$ Or equivalently
+$$\sigma^{2}_{X_{m}} = \lambda^{2}_{m}\sigma^{2}_{\theta}+\sigma^{2}_{\varepsilon_{m}}$$
 
-$$
-  Var(X_{m}) = \lambda_{m}^{2}Var(\theta) + Var(\epsilon_{m})
-$$
+Or equivalently
+
+$$Var(X_{m}) = \lambda_{m}^{2}Var(\theta) + Var(\epsilon_{m})$$
 
 It is good to keep in mind that we assume in our model that once
 controlled for the unobserved factor, there shouldn’t be any
@@ -598,9 +596,10 @@ Finally, let’s think about the correlations between our variables. As we
 mentioned before, the observed indicators are assumed to be only related
 through the latent factor, which would imply that:
 
-$$Cov(x_{i}, x_{i}) = \lambda_{j}\lambda_{i}$$ This might not happen in
-practice, which would be an indicative of poor model fit. Let us check
-if this occurs.
+$$Cov(x_{i}, x_{i}) = \lambda_{j}\lambda_{i}$$
+
+This might not happen in practice, which would be an indicative of poor
+model fit. Let us check if this occurs.
 
 ``` r
 # The correlations according to the model (without considering the main diagonal)
@@ -608,10 +607,10 @@ fit_1$loadings$nf2[,1]%o%fit_1$loadings$nf2[,1]
 ```
 
     ##          q01       q02      q03     q04      q05       q06       q07      q08
-    ## q01  0.52978 -0.128369 -0.35147  0.4818  0.43051  0.074955 -1.87e-03  0.34574
+    ## q01  0.52978 -0.128368 -0.35147  0.4818  0.43051  0.074955 -1.87e-03  0.34574
     ## q02 -0.12837  0.031104  0.08516 -0.1168 -0.10431 -0.018162  4.53e-04 -0.08377
     ## q03 -0.35147  0.085163  0.23318 -0.3197 -0.28561 -0.049727  1.24e-03 -0.22937
-    ## q04  0.48185 -0.116753 -0.31967  0.4382  0.39155  0.068173 -1.70e-03  0.31445
+    ## q04  0.48184 -0.116753 -0.31967  0.4382  0.39155  0.068173 -1.70e-03  0.31445
     ## q05  0.43051 -0.104314 -0.28561  0.3916  0.34983  0.060910 -1.52e-03  0.28095
     ## q06  0.07496 -0.018162 -0.04973  0.0682  0.06091  0.010605 -2.64e-04  0.04892
     ## q07 -0.00187  0.000453  0.00124 -0.0017 -0.00152 -0.000264  6.58e-06 -0.00122
