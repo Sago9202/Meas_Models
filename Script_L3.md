@@ -3,11 +3,9 @@ Session 3: Factor Analysis
 Laura Eberlein, Santiago Gómez-Echeverry & Dimitris Pavlopoulos
 2023-01-16
 
-- <a href="#factor-analysis" id="toc-factor-analysis">Factor Analysis</a>
-- <a href="#example---spss-anxiety"
-  id="toc-example---spss-anxiety">Example - SPSS Anxiety</a>
-- <a href="#correlation-matrix" id="toc-correlation-matrix">Correlation
-  matrix</a>
+- [Factor Analysis](#factor-analysis)
+- [Example - SPSS Anxiety](#example---spss-anxiety)
+- [Correlation matrix](#correlation-matrix)
 
 Before diving into the core of the lecture, remember that you should
 always start your R session by arranging the work space.
@@ -92,7 +90,7 @@ load the data, check how many observations we have and check the first
 cases.
 
 ``` r
-setwd("C:/Users/Startklar/OneDrive - Vrije Universiteit Amsterdam/Measurement Models in Quantitative Research/3 - Practicals/Week 2 - Factor Analysis")
+setwd("C:/Users/sagom/Downloads")
 
 anxiety <- read_sav("SAQ8.sav")
 dim(anxiety) # We have 2,571 obs. with 8 variables
@@ -223,7 +221,7 @@ anxiety[,which(colnames(anxiety)==c("q01", "q02"))]
     ##  8 2 [Agree]          2 [Agree]         
     ##  9 3 [Neither]        3 [Neither]       
     ## 10 2 [Agree]          4 [Disagree]      
-    ## # … with 2,561 more rows
+    ## # ℹ 2,561 more rows
 
 ``` r
 anxiety[,c(1,2)]
@@ -242,7 +240,7 @@ anxiety[,c(1,2)]
     ##  8 2 [Agree]          2 [Agree]         
     ##  9 3 [Neither]        3 [Neither]       
     ## 10 2 [Agree]          4 [Disagree]      
-    ## # … with 2,561 more rows
+    ## # ℹ 2,561 more rows
 
 ``` r
 anxiety <- as.matrix(anxiety)
@@ -477,7 +475,7 @@ fit_1$loadings
 summary(fit_1[[2]], nd = 3L, cutoff = 0.3, dot.cutoff = 0.05)
 ```
 
-    ## lavaan 0.6.13 ended normally after 1 iteration
+    ## lavaan 0.6.17 ended normally after 1 iteration
     ## 
     ##   Estimator                                         ML
     ##   Optimization method                           NLMINB
@@ -600,10 +598,9 @@ Finally, let’s think about the correlations between our variables. As we
 mentioned before, the observed indicators are assumed to be only related
 through the latent factor, which would imply that:
 
-$$
-  Cov(x_{i}, x_{i}) = \lambda_{j}\lambda_{i}
-$$ This might not happen in practice, which would be an indicative of
-poor model fit. Let us check if this occurs.
+$$Cov(x_{i}, x_{i}) = \lambda_{j}\lambda_{i}$$ This might not happen in
+practice, which would be an indicative of poor model fit. Let us check
+if this occurs.
 
 ``` r
 # The correlations according to the model (without considering the main diagonal)
